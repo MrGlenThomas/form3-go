@@ -16,7 +16,7 @@ The test criteria specified using the fake API for integration testing. I also w
 
 I saw in the [API documentation](https://api-docs.form3.tech/api.html#introduction-and-api-conventions) that some headers are required in all requests so have a shared function for generating a new request object and adding those headers in.
 
-I have one large integration test that covers all operations. I should break this into smaller test functions that cover specific scenarios, but need to consider how the underlying database will affect the test design (i.e. the same data store is shared across parallel-executed tests).
+The Docker compose fails on the first up because the account api is not ready to receive requests. Need to handle this.
 
 ## Usage
 
