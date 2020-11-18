@@ -97,6 +97,58 @@ func TestUnit_AccountsService_Fetch(t *testing.T) {
 	}
 }
 
+func TestUnit_AccountsService_List(t *testing.T) {
+	client, mux, _, teardown := setupClientWithStubbedApi()
+	defer teardown()
+
+	mux.HandleFunc("/organisation/accounts", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", jsonApiMediaType)
+		testFormValues(t, r, values{
+			"page[number]": "1",
+			"page[size]":   "10",
+		})
+		fmt.Fprint(w, `
+		{
+			"data": [
+				{
+					"id":"ad27e265-9605-4b4b-a0e5-3003ea9cc4dc",
+					"type": "accounts",
+					"organisation_id": "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c",
+					"version": 7,
+					"attributes": {
+						"country": "GB",
+						"base_currency": "GBP"
+					}
+				}
+			]
+		}`)
+	})
+
+	accountsListResponse, _, err := client.Accounts.List(context.Background(), &ListOptions{PageNumber: 1, PageSize: 10})
+	if err != nil {
+		t.Errorf("Accounts.List returned error: %v", err)
+	}
+
+	want := &AccountDetailsListResponse{
+		Data: []*Account{
+			{
+				ID:             String("ad27e265-9605-4b4b-a0e5-3003ea9cc4dc"),
+				Type:           String("accounts"),
+				OrganisationId: String("eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"),
+				Version:        Int(7),
+				Attributes: &AccountAttributes{
+					Country:      String("GB"),
+					BaseCurrency: String("GBP"),
+				},
+			},
+		},
+	}
+	if !reflect.DeepEqual(accountsListResponse, want) {
+		t.Errorf("Accounts.List returned %+v, want %+v", accountsListResponse, want)
+	}
+}
+
 func TestUnit_AccountsService_Delete(t *testing.T) {
 	client, mux, _, teardown := setupClientWithStubbedApi()
 	defer teardown()
