@@ -1,4 +1,4 @@
-module form3.tech/accounts
+module form3.tech/go-form3
 
 go 1.15
 

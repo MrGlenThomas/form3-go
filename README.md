@@ -12,9 +12,22 @@ I am not familiar with commonly used go code formatting (indentation, alignment)
 
 ## Usage
 
+A basic example to list accounts:
+
 ```go
-import "form3.tech/form3"
+import "form3.tech/go-form3/form3"
+
+func main() {
+	client := form3.NewClient(nil)
+	accounts, _, err := client.Accounts.List(context.Background(), &form3.ListOptions{PageNumber: 1, PageSize: 50})
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+}
 ```
+
+See [Examples](/examples).
 
 ## Testing
 
