@@ -20,7 +20,6 @@ import (
 const (
 	defaultBaseURL   = "https://api.form3.tech/"
 	apiVersion       = 1
-	host             = "api.form3.tech"
 	userAgent        = "go-form3"
 	jsonApiMediaType = "application/vnd.api+json"
 )
