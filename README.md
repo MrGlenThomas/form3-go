@@ -8,7 +8,9 @@ By [Glen Thomas](glen-thomas.com) [glen.thomas@outlook.com](mailto:glen.thomas@o
 
 I have never used Go before. I currently mainly code with C# and TypeScript.
 
-I am not familiar with commonly used go code formatting (indentation, alignment) or project structure. I have looked at some example repositories to get an idea.
+I am not familiar with commonly used go code styling (indentation, alignment, comments, etc.) or project structure. I have looked at some example repositories to get an idea of common practice.
+
+The test criteria specified using the fake API for integration testing. I also wanted to have some basic unit tests for fast feedback so am using httptest to intercept HTTP requests and provide static responses.
 
 ## Usage
 
@@ -32,4 +34,5 @@ See [Examples](/examples).
 ## Testing
 
 To run unit tests `go test -run 'Unit'`
+
 To run integration tests `docker-compose up`
