@@ -8,11 +8,11 @@ By [Glen Thomas](glen-thomas.com) [glen.thomas@outlook.com](mailto:glen.thomas@o
 
 I have never used Go before. I currently mainly code with C# and TypeScript.
 
-When I needed to know how to do something (e.g. initialize a variable, create a function, use the go cli, etc.) I searched online. Stackoverflow had many answers I needed.
+When I needed to know how to do something (e.g. initialize a variable, create a function, use the go cli, etc.) I searched online. Stackoverflow had many answers I needed. I also checked out some open source go HTTP client repositories to learn by example.
 
-I am not familiar with commonly used go code styling (indentation, alignment, comments, naming conventions etc.) or project structure. I have looked at some example repositories to get an idea of common practice. I may have laid things out in a frustrating way (do people generally order files as package name, imports, types, functions?).
+I am not familiar with commonly used go code styling (indentation, alignment, comments, naming conventions etc.) or project structure. I have looked at some example repositories to get an idea of common practice. I may have laid things out in an unusual way (do people generally order files as; package, imports, types, functions?).
 
-The test criteria specified using the fake API for integration testing. I also wanted to have some basic unit tests for fast feedback so am using httptest to intercept HTTP requests and provide static responses.
+The test criteria specified using the fake API for integration testing. I also wanted to have some basic unit tests for fast feedback so am using [httptest](https://pkg.go.dev/net/http/httptest) to intercept HTTP requests and provide static responses to verify the outgoing HTTP request and handling of the response works as expected.
 
 I saw in the [API documentation](https://api-docs.form3.tech/api.html#introduction-and-api-conventions) that some headers are required in all requests so have a shared function for generating a new request object and adding those headers in.
 
