@@ -110,3 +110,25 @@ func (s *AccountsService) Fetch(ctx context.Context, id string) (*AccountDetails
 
 	return accountDetails, resp, nil
 }
+
+// List accounts with the ability to page.
+// Form3 API docs: https://api-docs.form3.tech/api.html#organisation-accounts-list
+func (s *AccountsService) List(ctx context.Context, options *ListOptions) (*AccountDetailsListResponse, *Response, error) {
+	u, err := addOptions("organisation/accounts", options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req, err := s.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	accountDetailsList := new(AccountDetailsListResponse)
+	resp, err := s.client.Do(ctx, req, accountDetailsList)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return accountDetailsList, resp, nil
+}

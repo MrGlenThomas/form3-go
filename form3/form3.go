@@ -58,6 +58,16 @@ func NewClient(httpClient *http.Client) *Client {
 	return c
 }
 
+// ListOptions specifies the optional parameters to various List methods that
+// support offset pagination.
+type ListOptions struct {
+	// For paginated result sets, page of results to retrieve.
+	PageNumber int `url:"page[number],omitempty"`
+
+	// For paginated result sets, the number of results to include per page.
+	PageSize int `url:"page[size],omitempty"`
+}
+
 // NewRequest creates an API request. A relative URL can be provided in urlStr,
 // in which case it is resolved relative to the BaseURL of the Client.
 // Relative URLs should always be specified without a preceding slash. If
