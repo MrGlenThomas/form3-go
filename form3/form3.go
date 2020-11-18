@@ -133,6 +133,19 @@ type ErrorResponse struct {
 	Code     string         `json:"error_code"`    // more detail on individual errors
 }
 
+type Links struct {
+	// Link to this endpoint or resource.
+	Self *string `json:"self"`
+	// Link to the first page of a paginated response. Only available in list call responses.
+	First *string `json:"first"`
+	// Link to the last page of a paginated response. Only available in list call responses.
+	Last *string `json:"last"`
+	// Link to the next page of a paginated response. Only available in list call responses.
+	Next *string `json:"next"`
+	// Link to the previous page of a paginated response. Only available in list call responses.
+	Prev *string `json:"prev"`
+}
+
 func (r *ErrorResponse) Error() string {
 	return fmt.Sprintf("%v %v: %d %v %+v",
 		r.Response.Request.Method, r.Response.Request.URL,
