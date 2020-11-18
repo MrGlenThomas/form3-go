@@ -43,9 +43,9 @@ services:
 
   clientapp:
     image: golang:stretch
+    depends_on:
+      - accountapi
     volumes:
       - .:/go/src/go-form3
     working_dir: /go/src/go-form3
     command: scripts/run-tests.sh
-    links:
-      - accountapi

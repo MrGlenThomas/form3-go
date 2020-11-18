@@ -16,7 +16,7 @@ The test criteria specified using the fake API for integration testing. I also w
 
 I saw in the [API documentation](https://api-docs.form3.tech/api.html#introduction-and-api-conventions) that some headers are required in all requests so have a shared function for generating a new request object and adding those headers in.
 
-The Docker compose fails on the first up because the account api is not ready to receive requests. Need to handle this.
+The Docker compose fails on the first up because the account api is not ready to receive requests. I am handling this with a loop in the shell script that probes the accounts endpoint for a response before beginning the tests.
 
 ## Usage
 
