@@ -318,6 +318,19 @@ func TestIntegration_AccountsService_Fetch(t *testing.T) {
 	_, err = client.Accounts.Delete(context.Background(), *createAccountResponse.ID, *createAccountResponse.Version)
 }
 
+func TestIntegration_AccountsService_Fetch_Missing(t *testing.T) {
+	client, _ := setupClientWithFakedApi()
+
+	accountId := "c041bbf4-19f3-4baa-9406-37a2a4be73e3"
+
+	// Fetch account
+	_, httpResponse, _ := client.Accounts.Fetch(context.Background(), accountId)
+
+	if httpResponse.StatusCode != 404 {
+		t.Errorf("Accounts.Fetch returned status %v, want %v", httpResponse.StatusCode, 404)
+	}
+}
+
 func TestIntegration_AccountsService_List(t *testing.T) {
 	client, _ := setupClientWithFakedApi()
 
@@ -425,5 +438,18 @@ func TestIntegration_AccountsService_Delete(t *testing.T) {
 	_, err = client.Accounts.Delete(context.Background(), *accountId, *createAccountResponse.Version)
 	if err != nil {
 		t.Errorf("Accounts.Delete returned error: %v", err)
+	}
+}
+
+func TestIntegration_AccountsService_Delete_Missing(t *testing.T) {
+	client, _ := setupClientWithFakedApi()
+
+	accountId := "c77da171-6fb3-45ac-ba57-24d94eb13ba5"
+
+	// Delete the account
+	response, _ := client.Accounts.Delete(context.Background(), accountId, 1)
+
+	if response.StatusCode != 204 {
+		t.Errorf("Accounts.Create returned status %v, want %v", response.StatusCode, 204)
 	}
 }
