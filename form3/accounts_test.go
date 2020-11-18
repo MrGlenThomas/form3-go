@@ -198,8 +198,8 @@ func TestUnit_AccountsService_Delete(t *testing.T) {
 func TestIntegration_AccountsService(t *testing.T) {
 	client, _ := setupClientWithFakedApi()
 
-	testAccount := &Account{
-		ID:             String("ad27e265-9605-4b4b-a0e5-3003ea9cc4dc"),
+	testAccount1, testAccount2 := &Account{
+		ID:             String("794318df-523f-441b-8648-8124763498c8"),
 		Type:           String("accounts"),
 		OrganisationId: String("eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"),
 		Attributes: &AccountAttributes{
@@ -209,34 +209,73 @@ func TestIntegration_AccountsService(t *testing.T) {
 			BankIdCode:   String("GBDSC"),
 			BIC:          String("NWBKGB22"),
 		},
-	}
+	},
+		&Account{
+			ID:             String("5367676c-2dd6-41d6-851f-a85671d72fba"),
+			Type:           String("accounts"),
+			OrganisationId: String("58d8a2c8-29ca-11eb-adc1-0242ac120002"),
+			Attributes: &AccountAttributes{
+				Country:      String("GB"),
+				BaseCurrency: String("GBP"),
+				BankId:       String("501600"),
+				BankIdCode:   String("GBDXN"),
+				BIC:          String("GDTKGB88"),
+			},
+		}
 
+	// Create first account
 	createAccountResponse, _, err := client.Accounts.Create(
 		context.Background(),
-		testAccount)
+		testAccount1)
 
 	if err != nil {
-		t.Errorf("Accounts.List returned error: %v", err)
+		t.Errorf("Accounts.Create returned error: %v", err)
+	}
+
+	// Create second account
+	_, _, err = client.Accounts.Create(
+		context.Background(),
+		testAccount2)
+
+	if err != nil {
+		t.Errorf("Accounts.Create returned error: %v", err)
 	}
 
 	accountId := createAccountResponse.ID
 
+	// Fetch first account
 	fetchAccountResponse, _, err := client.Accounts.Fetch(context.Background(), *accountId)
 	if err != nil {
 		t.Errorf("Accounts.Fetch returned error: %v", err)
 	}
 
-	if *fetchAccountResponse.Data.ID != *testAccount.ID {
-		t.Errorf("Accounts.Fetch returned %+v, want %+v", fetchAccountResponse.Data.ID, testAccount.ID)
+	if *fetchAccountResponse.Data.ID != *testAccount1.ID {
+		t.Errorf("Accounts.Fetch returned %+v, want %+v", fetchAccountResponse.Data.ID, testAccount1.ID)
 	}
 
+	// Test list
 	listAccountsResponse, _, err := client.Accounts.List(context.Background(), &ListOptions{PageNumber: 0, PageSize: 1})
 	if err != nil {
 		t.Errorf("Accounts.List returned error: %v", err)
 	}
 
 	if len(listAccountsResponse.Data) < 1 {
-		t.Errorf("Accounts.List returned %+v, want %+v", len(listAccountsResponse.Data), 1)
+		t.Errorf("Accounts.List returned %+v accounts, want %+v accounts", len(listAccountsResponse.Data), 1)
+	}
+
+	// Test list with paging
+	listAccountsResponse2, _, err := client.Accounts.List(context.Background(), &ListOptions{PageNumber: 1, PageSize: 1})
+
+	if err != nil {
+		t.Errorf("Accounts.List returned error: %v", err)
+	}
+
+	if len(listAccountsResponse2.Data) < 1 {
+		t.Errorf("Accounts.List returned %+v accounts, want %+v accounts", len(listAccountsResponse2.Data), 1)
+	}
+
+	if *listAccountsResponse.Data[0].ID == *listAccountsResponse2.Data[0].ID {
+		t.Error("Accounts.List paging did not work returned same account on both pages")
 	}
 
 	_, err = client.Accounts.Delete(context.Background(), *accountId, *createAccountResponse.Version)
