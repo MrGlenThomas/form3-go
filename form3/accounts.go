@@ -74,7 +74,7 @@ type AccountCreationResponse struct {
 // Note that a given bank_id and bic need to be registered with Form3 and connected to your organisation ID.
 // Form3 API docs: https://api-docs.form3.tech/api.html#organisation-accounts-create
 func (s *AccountsService) Create(ctx context.Context, account *Account) (*Account, *Response, error) {
-	u := fmt.Sprintf("/v%v/organisation/accounts", apiVersion)
+	u := "organisation/accounts"
 	payload := &AccountCreation{Data: account}
 	req, err := s.client.NewRequest("POST", u, payload)
 	if err != nil {
@@ -95,7 +95,7 @@ func (s *AccountsService) Create(ctx context.Context, account *Account) (*Accoun
 // Get a single account using the account ID.
 // Form3 API docs: https://api-docs.form3.tech/api.html#organisation-accounts-fetch
 func (s *AccountsService) Fetch(ctx context.Context, id string) (*AccountDetailsResponse, *Response, error) {
-	u := fmt.Sprintf("/v%v/organisation/accounts/%v", apiVersion, id)
+	u := fmt.Sprintf("organisation/accounts/%v", id)
 
 	req, err := s.client.NewRequest("GET", u, nil)
 	if err != nil {
