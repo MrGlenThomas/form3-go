@@ -1,0 +1,6 @@
+#!/bin/sh
+
+go get -d ./... 
+go install -v ./...
+cd form3
+go test -run 'Integration'

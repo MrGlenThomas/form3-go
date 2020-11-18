@@ -166,3 +166,53 @@ func TestUnit_AccountsService_Delete(t *testing.T) {
 		t.Errorf("Accounts.Delete returned error: %v", err)
 	}
 }
+
+func TestIntegration_AccountsService(t *testing.T) {
+	client, _ := setupClientWithFakedApi()
+
+	testAccount := &Account{
+		ID:             String("ad27e265-9605-4b4b-a0e5-3003ea9cc4dc"),
+		Type:           String("accounts"),
+		OrganisationId: String("eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"),
+		Attributes: &AccountAttributes{
+			Country:      String("GB"),
+			BaseCurrency: String("GBP"),
+			BankId:       String("400300"),
+			BankIdCode:   String("GBDSC"),
+			BIC:          String("NWBKGB22"),
+		},
+	}
+
+	createAccountResponse, _, err := client.Accounts.Create(
+		context.Background(),
+		testAccount)
+
+	if err != nil {
+		t.Errorf("Accounts.List returned error: %v", err)
+	}
+
+	accountId := createAccountResponse.ID
+
+	fetchAccountResponse, _, err := client.Accounts.Fetch(context.Background(), *accountId)
+	if err != nil {
+		t.Errorf("Accounts.Fetch returned error: %v", err)
+	}
+
+	if *fetchAccountResponse.Data.ID != *testAccount.ID {
+		t.Errorf("Accounts.Fetch returned %+v, want %+v", fetchAccountResponse.Data.ID, testAccount.ID)
+	}
+
+	listAccountsResponse, _, err := client.Accounts.List(context.Background(), &ListOptions{PageNumber: 0, PageSize: 1})
+	if err != nil {
+		t.Errorf("Accounts.List returned error: %v", err)
+	}
+
+	if len(listAccountsResponse.Data) < 1 {
+		t.Errorf("Accounts.List returned %+v, want %+v", len(listAccountsResponse.Data), 1)
+	}
+
+	_, err = client.Accounts.Delete(context.Background(), *accountId, *createAccountResponse.Version)
+	if err != nil {
+		t.Errorf("Accounts.Delete returned error: %v", err)
+	}
+}

@@ -44,6 +44,17 @@ func setupClientWithStubbedApi() (client *Client, mux *http.ServeMux, serverURL 
 	return client, mux, server.URL, server.Close
 }
 
+func setupClientWithFakedApi() (client *Client, serverURL string) {
+	// client is the Form3 client being tested and is
+	// configured to use docker service API.
+	serverURL = "http://accountapi:8080"
+	client = NewClient(nil)
+	url, _ := url.Parse(serverURL + baseURLPath + "/")
+	client.BaseURL = url
+
+	return client, serverURL
+}
+
 func testMethod(t *testing.T, r *http.Request, want string) {
 	t.Helper()
 	if got := r.Method; got != want {
