@@ -195,11 +195,45 @@ func TestUnit_AccountsService_Delete(t *testing.T) {
 	}
 }
 
-func TestIntegration_AccountsService(t *testing.T) {
+func TestIntegration_AccountsService_Create(t *testing.T) {
+	client, _ := setupClientWithFakedApi()
+
+	testAccount := &Account{
+		ID:             String("1d50df61-db36-483c-9975-41141d691be1"),
+		Type:           String("accounts"),
+		OrganisationId: String("eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"),
+		Attributes: &AccountAttributes{
+			Country:      String("GB"),
+			BaseCurrency: String("GBP"),
+			BankId:       String("400300"),
+			BankIdCode:   String("GBDSC"),
+			BIC:          String("NWBKGB22"),
+		},
+	}
+
+	// Create account
+	createAccountResponse, _, err := client.Accounts.Create(
+		context.Background(),
+		testAccount)
+
+	if err != nil {
+		t.Errorf("Accounts.Create returned error: %v", err)
+		return
+	}
+
+	if *createAccountResponse.ID != *testAccount.ID {
+		t.Errorf("Accounts.Create returned unexpected account: %v, want %v", *createAccountResponse.ID, *testAccount.ID)
+	}
+
+	// Clean up
+	_, err = client.Accounts.Delete(context.Background(), *createAccountResponse.ID, *createAccountResponse.Version)
+}
+
+func TestIntegration_AccountsService_Create_Duplicate(t *testing.T) {
 	client, _ := setupClientWithFakedApi()
 
 	testAccount1, testAccount2 := &Account{
-		ID:             String("794318df-523f-441b-8648-8124763498c8"),
+		ID:             String("3ff062d2-803f-4078-8067-699b3a0a0ba9"),
 		Type:           String("accounts"),
 		OrganisationId: String("eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"),
 		Attributes: &AccountAttributes{
@@ -211,7 +245,7 @@ func TestIntegration_AccountsService(t *testing.T) {
 		},
 	},
 		&Account{
-			ID:             String("5367676c-2dd6-41d6-851f-a85671d72fba"),
+			ID:             String("3ff062d2-803f-4078-8067-699b3a0a0ba9"),
 			Type:           String("accounts"),
 			OrganisationId: String("58d8a2c8-29ca-11eb-adc1-0242ac120002"),
 			Attributes: &AccountAttributes{
@@ -224,7 +258,7 @@ func TestIntegration_AccountsService(t *testing.T) {
 		}
 
 	// Create first account
-	createAccountResponse, _, err := client.Accounts.Create(
+	createAccountResponse1, _, err := client.Accounts.Create(
 		context.Background(),
 		testAccount1)
 
@@ -237,20 +271,97 @@ func TestIntegration_AccountsService(t *testing.T) {
 		context.Background(),
 		testAccount2)
 
+	if !strings.Contains(err.Error(), "409") {
+		t.Error("Accounts.Create did not return expected 409 error")
+	}
+
+	// Clean up
+	_, err = client.Accounts.Delete(context.Background(), *createAccountResponse1.ID, *createAccountResponse1.Version)
+}
+
+func TestIntegration_AccountsService_Fetch(t *testing.T) {
+	client, _ := setupClientWithFakedApi()
+
+	testAccount := &Account{
+		ID:             String("c041bbf4-19f3-4baa-9406-37a2a4be73e3"),
+		Type:           String("accounts"),
+		OrganisationId: String("eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"),
+		Attributes: &AccountAttributes{
+			Country:      String("GB"),
+			BaseCurrency: String("GBP"),
+			BankId:       String("400300"),
+			BankIdCode:   String("GBDSC"),
+			BIC:          String("NWBKGB22"),
+		},
+	}
+
+	// Create account
+	createAccountResponse, _, err := client.Accounts.Create(
+		context.Background(),
+		testAccount)
+
 	if err != nil {
 		t.Errorf("Accounts.Create returned error: %v", err)
 	}
 
-	accountId := createAccountResponse.ID
-
-	// Fetch first account
-	fetchAccountResponse, _, err := client.Accounts.Fetch(context.Background(), *accountId)
+	// Fetch account
+	fetchAccountResponse, _, err := client.Accounts.Fetch(context.Background(), *createAccountResponse.ID)
 	if err != nil {
 		t.Errorf("Accounts.Fetch returned error: %v", err)
 	}
 
-	if *fetchAccountResponse.Data.ID != *testAccount1.ID {
-		t.Errorf("Accounts.Fetch returned %+v, want %+v", fetchAccountResponse.Data.ID, testAccount1.ID)
+	if *fetchAccountResponse.Data.ID != *testAccount.ID {
+		t.Errorf("Accounts.Fetch returned %+v, want %+v", fetchAccountResponse.Data.ID, testAccount.ID)
+	}
+
+	// Clean up
+	_, err = client.Accounts.Delete(context.Background(), *createAccountResponse.ID, *createAccountResponse.Version)
+}
+
+func TestIntegration_AccountsService_List(t *testing.T) {
+	client, _ := setupClientWithFakedApi()
+
+	testAccount1, testAccount2 := &Account{
+		ID:             String("3d0d787f-32a8-4236-b6b7-39e1ca14ec04"),
+		Type:           String("accounts"),
+		OrganisationId: String("eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"),
+		Attributes: &AccountAttributes{
+			Country:      String("GB"),
+			BaseCurrency: String("GBP"),
+			BankId:       String("400300"),
+			BankIdCode:   String("GBDSC"),
+			BIC:          String("NWBKGB22"),
+		},
+	},
+		&Account{
+			ID:             String("58b3085c-e55a-4517-aead-aa6d5b9ea05e"),
+			Type:           String("accounts"),
+			OrganisationId: String("58d8a2c8-29ca-11eb-adc1-0242ac120002"),
+			Attributes: &AccountAttributes{
+				Country:      String("GB"),
+				BaseCurrency: String("GBP"),
+				BankId:       String("501600"),
+				BankIdCode:   String("GBDXN"),
+				BIC:          String("GDTKGB88"),
+			},
+		}
+
+	// Create first account
+	createAccountResponse1, _, err := client.Accounts.Create(
+		context.Background(),
+		testAccount1)
+
+	if err != nil {
+		t.Errorf("Accounts.Create returned error: %v", err)
+	}
+
+	// Create second account
+	createAccountResponse2, _, err := client.Accounts.Create(
+		context.Background(),
+		testAccount2)
+
+	if err != nil {
+		t.Errorf("Accounts.Create returned error: %v", err)
 	}
 
 	// Test list
@@ -278,6 +389,39 @@ func TestIntegration_AccountsService(t *testing.T) {
 		t.Error("Accounts.List paging did not work returned same account on both pages")
 	}
 
+	// Clean up
+	_, err = client.Accounts.Delete(context.Background(), *createAccountResponse1.ID, *createAccountResponse1.Version)
+	_, err = client.Accounts.Delete(context.Background(), *createAccountResponse2.ID, *createAccountResponse2.Version)
+}
+
+func TestIntegration_AccountsService_Delete(t *testing.T) {
+	client, _ := setupClientWithFakedApi()
+
+	testAccount := &Account{
+		ID:             String("5b207923-d1b9-4bdd-8c7e-60b28db655e7"),
+		Type:           String("accounts"),
+		OrganisationId: String("eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"),
+		Attributes: &AccountAttributes{
+			Country:      String("GB"),
+			BaseCurrency: String("GBP"),
+			BankId:       String("400300"),
+			BankIdCode:   String("GBDSC"),
+			BIC:          String("NWBKGB22"),
+		},
+	}
+
+	// Create the account
+	createAccountResponse, _, err := client.Accounts.Create(
+		context.Background(),
+		testAccount)
+
+	if err != nil {
+		t.Errorf("Accounts.Create returned error: %v", err)
+	}
+
+	accountId := createAccountResponse.ID
+
+	// Delete the account
 	_, err = client.Accounts.Delete(context.Background(), *accountId, *createAccountResponse.Version)
 	if err != nil {
 		t.Errorf("Accounts.Delete returned error: %v", err)
