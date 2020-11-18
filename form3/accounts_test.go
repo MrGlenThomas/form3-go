@@ -96,3 +96,21 @@ func TestUnit_AccountsService_Fetch(t *testing.T) {
 		t.Errorf("Accounts.Fetch returned %+v, want %+v", accountResponse, want)
 	}
 }
+
+func TestUnit_AccountsService_Delete(t *testing.T) {
+	client, mux, _, teardown := setupClientWithStubbedApi()
+	defer teardown()
+
+	mux.HandleFunc("/organisation/accounts/d97a4470-299f-11eb-adc1-0242ac120002", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+		testFormValues(t, r, values{
+			"version": "1",
+		})
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	_, err := client.Accounts.Delete(context.Background(), "d97a4470-299f-11eb-adc1-0242ac120002", 1)
+	if err != nil {
+		t.Errorf("Accounts.Delete returned error: %v", err)
+	}
+}

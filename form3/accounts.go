@@ -132,3 +132,16 @@ func (s *AccountsService) List(ctx context.Context, options *ListOptions) (*Acco
 
 	return accountDetailsList, resp, nil
 }
+
+// Delete an account
+// Form3 API docs: https://api-docs.form3.tech/api.html#organisation-accounts-delete
+func (s *AccountsService) Delete(ctx context.Context, id string, version int) (*Response, error) {
+	u := fmt.Sprintf("organisation/accounts/%v?version=%v", id, version)
+
+	req, err := s.client.NewRequest("DELETE", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.client.Do(ctx, req, nil)
+}
