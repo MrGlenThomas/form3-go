@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -49,6 +50,33 @@ func TestUnit_AccountsService_Create(t *testing.T) {
 	}
 	if !reflect.DeepEqual(createdAccount, want) {
 		t.Errorf("Create = %+v, want %+v", createdAccount, want)
+	}
+}
+
+func TestUnit_AccountsService_Create_BadRequest(t *testing.T) {
+	client, mux, _, teardown := setupClientWithStubbedApi()
+	defer teardown()
+
+	mux.HandleFunc("/organisation/accounts", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		testHeader(t, r, "Accept", jsonApiMediaType)
+
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{
+			"error_message": "Your request is not good",
+			"error_code": "I don't like it!"
+		}`))
+	})
+
+	_, _, err := client.Accounts.Create(context.Background(), &Account{})
+	if err == nil {
+		t.Error("Create did not return error")
+	}
+	if !strings.Contains(err.Error(), "Your request is not good") {
+		t.Errorf("Create returned error: %v, missing error_message %v", err.Error(), "Your request is not good")
+	}
+	if !strings.Contains(err.Error(), "I don't like it!") {
+		t.Errorf("Create returned error: %v, missing error_code %v", err.Error(), "I don't like it!")
 	}
 }
 
