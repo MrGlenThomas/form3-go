@@ -1,6 +1,9 @@
 package form3
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 // AccountsService handles communication with the accounts related
 // methods of the Form3 API.
@@ -71,7 +74,7 @@ type AccountCreationResponse struct {
 // Note that a given bank_id and bic need to be registered with Form3 and connected to your organisation ID.
 // Form3 API docs: https://api-docs.form3.tech/api.html#organisation-accounts-create
 func (s *AccountsService) Create(ctx context.Context, account *Account) (*Account, *Response, error) {
-	u := "organisation/accounts"
+	u := fmt.Sprintf("/v%v/organisation/accounts", apiVersion)
 	payload := &AccountCreation{Data: account}
 	req, err := s.client.NewRequest("POST", u, payload)
 	if err != nil {
@@ -87,4 +90,23 @@ func (s *AccountsService) Create(ctx context.Context, account *Account) (*Accoun
 	}
 
 	return m.Data, resp, nil
+}
+
+// Get a single account using the account ID.
+// Form3 API docs: https://api-docs.form3.tech/api.html#organisation-accounts-fetch
+func (s *AccountsService) Fetch(ctx context.Context, id string) (*AccountDetailsResponse, *Response, error) {
+	u := fmt.Sprintf("/v%v/organisation/accounts/%v", apiVersion, id)
+
+	req, err := s.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	accountDetails := new(AccountDetailsResponse)
+	resp, err := s.client.Do(ctx, req, accountDetails)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return accountDetails, resp, nil
 }
